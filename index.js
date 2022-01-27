@@ -1,8 +1,28 @@
 const express = require('express')
+const  morgan = require('morgan')
+
 const app = express()
 
 app.use(express.json())
 
+// MORGAN:
+// Defines a token for logging data in POST requests.
+morgan.token('data', (req) => { 
+  return req.method === 'POST'
+  ? JSON.stringify(req.body) 
+  : null 
+})
+
+// Custom log format ('tiny' format including 'data' token at the end).
+morgan.format(
+  'tiny', 
+  ':method :url :status :res[content-length] - :response-time ms :data'
+)
+
+// App use morgan with modified 'tiny' format.
+app.use(morgan('tiny'))
+
+// Dummy data: for dev use only.
 let persons = [
   { 
     id: 1,
@@ -52,18 +72,26 @@ app.get('/api/persons/:id', (request, response) => {
   }
 })
 
+// DELETE: a single phonebook entry
+app.delete('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  persons = persons.filter(p => p.id !== id)
+
+  response.status(204).end()
+})
+
 // POST: a new phonebook entry
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  // error if data is missing
+  // return error if data is missing
   if (!body.name || !body.number) {
     return response.status(400).json({
       error: 'content missing'
     })
   }
 
-  // error if person already exist
+  // return error if person already exist
   if (persons.find(p => p.name.toLowerCase() === body.name.toLowerCase())) {
     return response.status(400).json({
       error: 'name must be unique'
@@ -81,14 +109,6 @@ app.post('/api/persons', (request, response) => {
   response.json(person)
 })
 
-// DELETE: a single phonebook entry
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  persons = persons.filter(p => p.id !== id)
-
-  response.status(204).end()
-})
-
 // generates a random number betwen 1 and 1000000
 const generateId = () => {
   const maxId = persons.length > 0
@@ -97,16 +117,6 @@ const generateId = () => {
   return maxId + 1
 }
 
-/*
-// func creates and returns a id higher than
-// the current highest id
-const generateId = () => {
-  const maxId = persons.length > 0
-    ? Math.max(...persons.map(p => p.id))
-    : 0
-  return maxId + 1
-}
-*/
 
 const PORT = 3001
 app.listen(PORT, () => {

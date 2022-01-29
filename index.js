@@ -1,11 +1,14 @@
 const express = require('express')
 const  morgan = require('morgan')
+const cors = require('cors')
 
 const app = express()
 
+// Middleware
 app.use(express.json())
+app.use(cors())
 
-// MORGAN:
+// Morgan:
 // Defines a token for logging data in POST requests.
 morgan.token('data', (req) => { 
   return req.method === 'POST'
@@ -109,7 +112,7 @@ app.post('/api/persons', (request, response) => {
   response.json(person)
 })
 
-// generates a random number betwen 1 and 1000000
+// generates a random number with 1000000 digits
 const generateId = () => {
   const maxId = persons.length > 0
     ? Math.floor(Math.random() * 1000000)
@@ -118,7 +121,7 @@ const generateId = () => {
 }
 
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

@@ -1,6 +1,5 @@
 const mongoose = require('mongoose')
 
-
 if (process.argv.length < 3) {
   console.log('Please provide the password as an argument: node mongo.js <password>')
   process.exit(1)
@@ -18,9 +17,10 @@ const personSchema = new mongoose.Schema ({
 
 const Person = mongoose.model('Person', personSchema)
 
+mongoose.connect(url)
+
 // Get every single person obj from db and print to console
 if (process.argv.length === 3) {
-  mongoose.connect(url)
 
   Person.find({}).then(persons => {
     persons.forEach(person => {
@@ -32,7 +32,6 @@ if (process.argv.length === 3) {
 
 // Add data for a new person to db
 if (process.argv.length > 3) {
-  mongoose.connect(url)
 
   const person = new Person ({
     name: process.argv[3],

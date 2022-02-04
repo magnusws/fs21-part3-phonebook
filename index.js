@@ -1,10 +1,8 @@
 require('dotenv').config()
 const express = require('express')
-const mongoose = require('mongoose')
 const morgan = require('morgan')
 const cors = require('cors')
 const Person = require('./models/person')
-const { estimatedDocumentCount } = require('./models/person')
 
 const app = express()
 
@@ -64,7 +62,7 @@ app.get('/api/persons/:id', (request, response, next) => {
 // DELETE: a single phonebook entry
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -126,6 +124,7 @@ const errorHandler = (error, request, response, next) => {
 app.use(errorHandler)
 
 
+// eslint-disable-next-line no-undef
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
